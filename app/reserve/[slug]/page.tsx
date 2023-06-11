@@ -1,5 +1,10 @@
+import { Metadata } from "next";
 import Form from "./components/Form";
 import Header from "./components/Header";
+
+export const metadata: Metadata = {
+  title: "Reserve | Milestone Grill",
+};
 
 export default function Reserve() {
   return (
