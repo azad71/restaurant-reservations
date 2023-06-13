@@ -6,20 +6,56 @@ import Images from "./components/Images";
 import Reviews from "./components/Reviews";
 import ReservationCard from "./components/ReservationCard";
 import { Metadata } from "next";
+import { PrismaClient } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "Milestones Grill",
 };
 
-export default function RestaurantDetails() {
+export interface IRestaurantDetails {
+  id: number;
+  name: string;
+  description: string;
+  images: string[];
+  slug: string;
+}
+
+const prisma = new PrismaClient();
+
+const getRestaurantsBySlug = async (
+  slug: string
+): Promise<IRestaurantDetails> => {
+  const restaurant = await prisma.restaurant.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      images: true,
+      slug: true,
+    },
+  });
+
+  if (!restaurant) throw new Error();
+
+  return restaurant;
+};
+
+export default async function RestaurantDetails({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const restaurant = await getRestaurantsBySlug(params.slug);
+
   return (
     <>
       <div className="bg-white w-[70%] rounded p-3 shadow">
-        <RestaurantNavBar />
-        <Title />
+        <RestaurantNavBar slug={restaurant.slug} />
+        <Title title={restaurant.name} />
         <Rating />
-        <Description />
-        <Images />
+        <Description description={restaurant.description} />
+        <Images images={restaurant.images} />
         <Reviews />
       </div>
       <div className="w-[27%] relative text-reg">
