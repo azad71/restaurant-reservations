@@ -7,8 +7,12 @@ export interface IRestaurant {
   name: string;
   main_image: string;
   price: PRICE;
-  cuisine: Cuisine;
-  location: Location;
+  cuisine: {
+    name: string;
+  };
+  location: {
+    name: string;
+  };
   slug: string;
 }
 

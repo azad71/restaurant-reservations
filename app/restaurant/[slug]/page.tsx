@@ -6,7 +6,7 @@ import Images from "./components/Images";
 import Reviews from "./components/Reviews";
 import ReservationCard from "./components/ReservationCard";
 import { Metadata } from "next";
-import { PrismaClient } from "@prisma/client";
+import db from "../../lib/db";
 
 export const metadata: Metadata = {
   title: "Milestones Grill",
@@ -20,12 +20,10 @@ export interface IRestaurantDetails {
   slug: string;
 }
 
-const prisma = new PrismaClient();
-
 const getRestaurantsBySlug = async (
   slug: string
 ): Promise<IRestaurantDetails> => {
-  const restaurant = await prisma.restaurant.findUnique({
+  const restaurant = await db.restaurant.findUnique({
     where: { slug },
     select: {
       id: true,

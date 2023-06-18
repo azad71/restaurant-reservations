@@ -1,9 +1,8 @@
 import { Metadata } from "next";
 import Header from "./components/Header";
 import RestaurantCard from "./components/RestaurantCard";
-import { Cuisine, Location, PRICE, PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { Cuisine, Location, PRICE } from "@prisma/client";
+import db from "./lib/db";
 
 export const metadata: Metadata = {
   title: "Restaurant Reservations",
@@ -20,7 +19,7 @@ export interface IRestaurantCard {
 }
 
 const fetchRestaurants = async (): Promise<IRestaurantCard[]> =>
-  prisma.restaurant.findMany({
+  db.restaurant.findMany({
     select: {
       id: true,
       name: true,

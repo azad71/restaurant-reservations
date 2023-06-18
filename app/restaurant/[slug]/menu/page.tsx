@@ -1,16 +1,14 @@
 import RestaurantNavBar from "../components/RestaurantNavBar";
 import Menu from "../components/Menu";
 import { Metadata } from "next";
-import { PrismaClient } from "@prisma/client";
+import db from "../../../lib/db";
 
 export const metadata: Metadata = {
   title: "Menu | Milestones Grill",
 };
 
-const prisma = new PrismaClient();
-
 const fetchRestaurantMenu = async (slug: string) => {
-  const restaurant = await prisma.restaurant.findUnique({
+  const restaurant = await db.restaurant.findUnique({
     where: { slug },
     select: { items: true },
   });
