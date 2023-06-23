@@ -5,13 +5,8 @@ import Description from "./components/Description";
 import Images from "./components/Images";
 import Reviews from "./components/Reviews";
 import ReservationCard from "./components/ReservationCard";
-import { Metadata } from "next";
 import db from "../../lib/db";
 import { Review } from "@prisma/client";
-
-export const metadata: Metadata = {
-  title: "Milestones Grill",
-};
 
 export interface IRestaurantDetails {
   id: number;
