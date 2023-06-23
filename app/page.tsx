@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Header from "./components/Header";
 import RestaurantCard from "./components/RestaurantCard";
-import { Cuisine, Location, PRICE } from "@prisma/client";
+import { Cuisine, Location, PRICE, Review } from "@prisma/client";
 import db from "./lib/db";
 
 export const metadata: Metadata = {
@@ -14,6 +14,7 @@ export interface IRestaurantCard {
   main_image: string;
   cuisine: Cuisine;
   location: Location;
+  reviews: Review[];
   price: PRICE;
   slug: string;
 }
@@ -26,6 +27,7 @@ const fetchRestaurants = async (): Promise<IRestaurantCard[]> =>
       main_image: true,
       cuisine: true,
       location: true,
+      reviews: true,
       price: true,
       slug: true,
     },

@@ -7,6 +7,7 @@ import Reviews from "./components/Reviews";
 import ReservationCard from "./components/ReservationCard";
 import { Metadata } from "next";
 import db from "../../lib/db";
+import { Review } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "Milestones Grill",
@@ -18,6 +19,7 @@ export interface IRestaurantDetails {
   description: string;
   images: string[];
   slug: string;
+  reviews: Review[];
 }
 
 const getRestaurantsBySlug = async (
@@ -31,6 +33,7 @@ const getRestaurantsBySlug = async (
       description: true,
       images: true,
       slug: true,
+      reviews: true,
     },
   });
 
@@ -51,10 +54,10 @@ export default async function RestaurantDetails({
       <div className="bg-white w-[70%] rounded p-3 shadow">
         <RestaurantNavBar slug={restaurant.slug} />
         <Title title={restaurant.name} />
-        <Rating />
+        <Rating reviews={restaurant.reviews} />
         <Description description={restaurant.description} />
         <Images images={restaurant.images} />
-        <Reviews />
+        <Reviews reviews={restaurant.reviews} />
       </div>
       <div className="w-[27%] relative text-reg">
         <ReservationCard />

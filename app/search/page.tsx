@@ -52,6 +52,7 @@ const getRestaurantsByFilter = async ({
     cuisine: { select: { name: true } },
     location: { select: { name: true } },
     slug: true,
+    reviews: true,
   };
 
   return db.restaurant.findMany({
