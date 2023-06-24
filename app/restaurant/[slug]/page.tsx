@@ -7,6 +7,7 @@ import Reviews from "./components/Reviews";
 import ReservationCard from "./components/ReservationCard";
 import db from "../../lib/db";
 import { Review } from "@prisma/client";
+import { notFound } from "next/navigation";
 
 export interface IRestaurantDetails {
   id: number;
@@ -32,7 +33,7 @@ const getRestaurantsBySlug = async (
     },
   });
 
-  if (!restaurant) throw new Error();
+  if (!restaurant) notFound();
 
   return restaurant;
 };
