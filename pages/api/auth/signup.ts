@@ -3,6 +3,7 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import * as jose from "jose";
 import db from "../../../app/lib/db";
+import { setCookie } from "cookies-next";
 
 function validatePayload(body: Record<string, any>) {
   const { firstName, lastName, email, phone, city, password } = body;
@@ -94,7 +95,13 @@ export default async function handler(
     .setExpirationTime("24h")
     .sign(secret);
 
+  setCookie("jwt", token, { req, res, maxAge: 60 * 6 * 24 });
+
   return res.status(200).send({
-    token,
+    firstName: newUser.first_name,
+    lastName: newUser.last_name,
+    phone: newUser.phone,
+    city: newUser.city,
+    email: newUser.email,
   });
 }

@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import validator from "validator";
 import bcrypt from "bcrypt";
 import * as jose from "jose";
+import { setCookie } from "cookies-next";
 import db from "../../../app/lib/db";
 
 function validatePayload(body: Record<string, any>) {
@@ -40,20 +41,17 @@ export default async function handler(
     });
   }
 
+  const { email, password } = req.body;
+
   const foundUser = await db.user.findUnique({
-    where: {
-      email: req.body.email,
-    },
+    where: { email },
   });
 
   if (!foundUser) {
     return res.status(401).json({ errorMessage: "Invalid credentials" });
   }
 
-  const isPasswordCorrect = await bcrypt.compare(
-    req.body.password,
-    foundUser.password
-  );
+  const isPasswordCorrect = await bcrypt.compare(password, foundUser.password);
 
   if (!isPasswordCorrect) {
     return res.status(401).json({ errorMessage: "Invalid credentials" });
@@ -66,7 +64,13 @@ export default async function handler(
     .setExpirationTime("24h")
     .sign(secret);
 
+  setCookie("jwt", token, { req, res, maxAge: 60 * 6 * 24 });
+
   return res.status(200).send({
-    token,
+    firstName: foundUser.first_name,
+    lastName: foundUser.last_name,
+    phone: foundUser.phone,
+    city: foundUser.city,
+    email: foundUser.email,
   });
 }

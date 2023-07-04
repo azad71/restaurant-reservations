@@ -35,10 +35,17 @@ export default async function handler(
   });
 
   if (!user) {
-    return res.status(404).json({
+    return res.status(401).json({
       errorMessage: "Invalid token",
     });
   }
 
-  return res.status(200).json({ userInfo: user });
+  return res.status(200).json({
+    id: user.id,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    email: user.email,
+    phone: user.phone,
+    city: user.city,
+  });
 }
