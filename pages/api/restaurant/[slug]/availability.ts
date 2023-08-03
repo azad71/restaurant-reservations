@@ -1,101 +1,79 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import times from "../../../../data/times";
+import { findAvailabileTables } from "../../../../services/restaurant/findAvailableTables";
 import db from "../../../../app/lib/db";
-
-interface IAvailabilityParams {
-  slug: string;
-  day: string;
-  time: string;
-  partySize: string;
-}
-
-interface IBookingTableObj {
-  [key: string]: {
-    [key: number]: boolean;
-  };
-}
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "GET")
-    return res.status(404).json({ message: "Invalid routes" });
-
-  const { slug, day, time, partySize } =
-    req.query as unknown as IAvailabilityParams;
-
-  if (!slug || !day || !time || !partySize) {
-    return res.status(400).json({ errorMessage: "Invalid data provided" });
-  }
-
-  const searchTimes = times.find((t) => t.time === time)?.searchTimes;
-
-  if (!searchTimes) {
-    return res.status(400).json({ errorMessage: "Invalid time slot provided" });
-  }
-
-  const bookings = await db.booking.findMany({
-    where: {
-      booking_time: {
-        gte: new Date(`${day}T${searchTimes[0]}`),
-        lte: new Date(`${day}T${searchTimes[searchTimes.length - 1]}`),
-      },
-    },
-    select: {
-      number_of_people: true,
-      booking_time: true,
-      tables: true,
-    },
-  });
-
-  const bookingTableObj: IBookingTableObj = {};
-
-  bookings.forEach((booking) => {
-    bookingTableObj[booking.booking_time.toISOString()] = booking.tables.reduce(
-      (obj, table) => {
-        return {
-          ...obj,
-          [table.table_id]: true,
-        };
-      },
-      {}
-    );
-  });
-
-  const restaurants = await db.restaurant.findUnique({
-    where: { slug },
-    select: { tables: true },
-  });
-
-  if (!restaurants) {
-    return res.status(400).json({ errorMessage: "Invalid data provided" });
-  }
-
-  const tables = restaurants.tables;
-
-  const searchTimesWithTables = searchTimes.map((searchTime) => {
-    return {
-      date: new Date(`${day}T${searchTime}`),
-      time: searchTime,
-      tables,
+  if (req.method === "GET") {
+    const { slug, day, time, partySize } = req.query as {
+      slug: string;
+      day: string;
+      time: string;
+      partySize: string;
     };
-  });
 
-  searchTimesWithTables.forEach((searchObj) => {
-    searchObj.tables = searchObj.tables.filter((table) => {
-      const hasBooked = bookingTableObj[searchObj.date.toISOString()];
-      if (hasBooked) {
-        if (hasBooked[table.id]) return false;
-      }
-      return true;
+    if (!day || !time || !partySize) {
+      return res.status(400).json({
+        errorMessage: "Invalid data provided",
+      });
+    }
+
+    const restaurant = await db.restaurant.findUnique({
+      where: {
+        slug,
+      },
+      select: {
+        tables: true,
+        open_time: true,
+        close_time: true,
+      },
     });
-  });
 
-  return res.json({
-    searchTimes,
-    bookings,
-    bookingTableObj,
-    searchTimesWithTables,
-  });
+    if (!restaurant) {
+      return res.status(400).json({
+        errorMessage: "Invalid data provided",
+      });
+    }
+
+    const searchTimesWithTables = await findAvailabileTables({
+      day,
+      time,
+      res,
+      restaurant,
+    });
+
+    if (!searchTimesWithTables) {
+      return res.status(400).json({
+        errorMessage: "Invalid data provided",
+      });
+    }
+
+    const availabilities = searchTimesWithTables
+      .map((t) => {
+        const sumSeats = t.tables.reduce((sum, table) => {
+          return sum + table.seats;
+        }, 0);
+
+        return {
+          time: t.time,
+          available: sumSeats >= parseInt(partySize),
+        };
+      })
+      .filter((availability) => {
+        const timeIsAfterOpeningHour =
+          new Date(`${day}T${availability.time}`) >=
+          new Date(`${day}T${restaurant.open_time}`);
+        const timeIsBeforeClosingHour =
+          new Date(`${day}T${availability.time}`) <=
+          new Date(`${day}T${restaurant.close_time}`);
+
+        return timeIsAfterOpeningHour && timeIsBeforeClosingHour;
+      });
+
+    return res.json(availabilities);
+  }
 }
+
+// http://localhost:3000/api/restaurant/vivaan-fine-indian-cuisine-ottawa/availability?day=2023-02-03&time=15:00:00.000Z&partySize=8

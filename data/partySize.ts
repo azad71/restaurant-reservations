@@ -1,4 +1,4 @@
-const partySize = [
+const partySizeData = [
   {
     value: 1,
     label: "1 person",
@@ -41,4 +41,4 @@ const partySize = [
   },
 ];
 
-export default partySize;
+export default partySizeData;
