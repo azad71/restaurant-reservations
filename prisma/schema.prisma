@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,10 +17,10 @@ model Restaurant {
   id          Int       @id @default(autoincrement())
   name        String
   main_image  String
+  images      String[]
   description String
   open_time   String
   close_time  String
-  images      String[]
   slug        String    @unique
   price       PRICE
   items       Item[]
@@ -32,10 +29,10 @@ model Restaurant {
   cuisine_id  Int
   cuisine     Cuisine   @relation(fields: [cuisine_id], references: [id])
   reviews     Review[]
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt
   bookings    Booking[]
   tables      Table[]
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
 }
 
 model Item {
@@ -70,12 +67,12 @@ model User {
   first_name String
   last_name  String
   city       String
+  password   String
   email      String   @unique
   phone      String
-  password   String
+  reviews    Review[]
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  reviews    Review[]
 }
 
 model Review {
@@ -91,7 +88,7 @@ model Review {
 }
 
 model Booking {
-  id                Int               @id @default(autoincrement())
+  id                Int                @id @default(autoincrement())
   number_of_people  Int
   booking_time      DateTime
   booker_email      String
@@ -101,23 +98,23 @@ model Booking {
   booker_occasion   String?
   booker_request    String?
   restaurant_id     Int
-  restaurant        Restaurant        @relation(fields: [restaurant_id], references: [id])
-  created_at        DateTime          @default(now())
-  updated_at        DateTime          @updatedAt
-  tables            BookingsOnTable[]
+  restaurant        Restaurant         @relation(fields: [restaurant_id], references: [id])
+  tables            BookingsOnTables[]
+  created_at        DateTime           @default(now())
+  updated_at        DateTime           @updatedAt
 }
 
 model Table {
-  id            Int               @id @default(autoincrement())
+  id            Int                @id @default(autoincrement())
   seats         Int
   restaurant_id Int
-  restaurant    Restaurant        @relation(fields: [restaurant_id], references: [id])
-  bookings      BookingsOnTable[]
-  created_at    DateTime          @default(now())
-  updated_at    DateTime          @updatedAt
+  restaurant    Restaurant         @relation(fields: [restaurant_id], references: [id])
+  bookings      BookingsOnTables[]
+  created_at    DateTime           @default(now())
+  updated_at    DateTime           @updatedAt
 }
 
-model BookingsOnTable {
+model BookingsOnTables {
   booking_id Int
   booking    Booking  @relation(fields: [booking_id], references: [id])
   table_id   Int
