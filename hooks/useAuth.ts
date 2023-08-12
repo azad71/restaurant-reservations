@@ -3,6 +3,15 @@ import { useContext } from "react";
 import { AuthenticationContext } from "../app/context/AuthContext";
 import { deleteCookie } from "cookies-next";
 
+interface ISignup {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  city: string;
+}
+
 const useAuth = () => {
   const { setAuthState } = useContext(AuthenticationContext);
 
@@ -47,21 +56,7 @@ const useAuth = () => {
   };
 
   const signup = async (
-    {
-      email,
-      password,
-      firstName,
-      lastName,
-      phone,
-      city,
-    }: {
-      email: string;
-      password: string;
-      firstName: string;
-      lastName: string;
-      phone: string;
-      city: string;
-    },
+    { email, password, firstName, lastName, phone, city }: ISignup,
     handleClose: () => void
   ) => {
     setAuthState({

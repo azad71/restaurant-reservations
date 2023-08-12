@@ -1,6 +1,20 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import axios from "axios";
 
+interface ICreateReservation {
+  slug: string;
+  partySize: string;
+  day: string;
+  time: string;
+  bookerFirstName: string;
+  bookerLastName: string;
+  bookerPhone: string;
+  bookerEmail: string;
+  bookerOccassion: string;
+  bookerRequest: string;
+  setDidBook: Dispatch<SetStateAction<boolean>>;
+}
+
 export default function useReservation() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -17,19 +31,7 @@ export default function useReservation() {
     bookerOccassion,
     bookerRequest,
     setDidBook,
-  }: {
-    slug: string;
-    partySize: string;
-    day: string;
-    time: string;
-    bookerFirstName: string;
-    bookerLastName: string;
-    bookerPhone: string;
-    bookerEmail: string;
-    bookerOccassion: string;
-    bookerRequest: string;
-    setDidBook: Dispatch<SetStateAction<boolean>>;
-  }) => {
+  }: ICreateReservation) => {
     setLoading(true);
 
     try {

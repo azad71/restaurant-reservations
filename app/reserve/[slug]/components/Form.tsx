@@ -4,15 +4,13 @@ import { CircularProgress } from "@mui/material";
 import { useEffect, useState } from "react";
 import useReservation from "../../../../hooks/userReservation";
 
-export default function Form({
-  slug,
-  date,
-  partySize,
-}: {
+interface Props {
   slug: string;
   date: string;
   partySize: string;
-}) {
+}
+
+export default function Form({ slug, date, partySize }: Props) {
   const [inputs, setInputs] = useState({
     bookerFirstName: "",
     bookerLastName: "",
